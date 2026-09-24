@@ -11,18 +11,25 @@
 #   ./docker-ctl.sh shell    进入容器
 #   ./docker-ctl.sh status   查看状态
 #   ./docker-ctl.sh -h       查看帮助
+#
+# 默认读取脚本同目录下的 docker-ctl.conf。
+# 可通过 DOCKER_CTL_CONFIG 指定其他配置文件。
 
 set -euo pipefail
 
-# ============ 可配置项 ============
+# ============ 配置 ============
 
-CONTAINER_NAME="awvs"
-IMAGE="secfa/docker-awvs"
-HOST_PORT="13443"
-CONTAINER_PORT="3443"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+CONFIG_FILE="${DOCKER_CTL_CONFIG:-$SCRIPT_DIR/docker-ctl.conf}"
 
-# 多个参数使用空格分隔。参数中包含空格时，请改为单独调整 docker run 命令。
-EXTRA_ARGS="--cap-add LINUX_IMMUTABLE"
+if [[ -f "$CONFIG_FILE" ]]; then
+    # 配置文件使用 Bash 变量语法，只读取用户明确指定的可信文件。
+    # shellcheck disable=SC1090
+    source "$CONFIG_FILE"
+fi
+
+# EXTRA_ARGS 为可选配置项，未设置时按空参数处理。
+EXTRA_ARGS="${EXTRA_ARGS:-}"
 
 # ==================================
 
@@ -34,6 +41,25 @@ NC='\033[0m'
 info()  { printf '%b[INFO]%b %s\n' "$GREEN" "$NC" "$*"; }
 warn()  { printf '%b[WARN]%b %s\n' "$YELLOW" "$NC" "$*" >&2; }
 error() { printf '%b[ERROR]%b %s\n' "$RED" "$NC" "$*" >&2; }
+
+require_config() {
+    if [[ ! -f "$CONFIG_FILE" ]]; then
+        error "未找到配置文件：$CONFIG_FILE"
+        error "请先复制 $SCRIPT_DIR/docker-ctl.conf.example 为 docker-ctl.conf，或通过 DOCKER_CTL_CONFIG 指定配置文件。"
+        return 1
+    fi
+
+    local missing=()
+    [[ -n "${CONTAINER_NAME+x}" && -n "${CONTAINER_NAME}" ]] || missing+=(CONTAINER_NAME)
+    [[ -n "${IMAGE+x}" && -n "${IMAGE}" ]] || missing+=(IMAGE)
+    [[ -n "${HOST_PORT+x}" && -n "${HOST_PORT}" ]] || missing+=(HOST_PORT)
+    [[ -n "${CONTAINER_PORT+x}" && -n "${CONTAINER_PORT}" ]] || missing+=(CONTAINER_PORT)
+
+    if (( ${#missing[@]} > 0 )); then
+        error "配置文件缺少必需项：${missing[*]}"
+        return 1
+    fi
+}
 
 check_docker() {
     if ! command -v docker >/dev/null 2>&1; then
@@ -157,18 +183,39 @@ usage() {
   status    查看容器状态
   -h, --help
             查看帮助
+
+配置文件：
+  ${CONFIG_FILE}
 EOF
 }
 
 main() {
     case "${1:-start}" in
         -h|--help) usage ;;
-        start)  start ;;
-        stop)   stop ;;
-        rm)     rm_container ;;
-        logs)   logs ;;
-        shell)  shell ;;
-        status) status ;;
+        start)
+            require_config || return 1
+            start
+            ;;
+        stop)
+            require_config || return 1
+            stop
+            ;;
+        rm)
+            require_config || return 1
+            rm_container
+            ;;
+        logs)
+            require_config || return 1
+            logs
+            ;;
+        shell)
+            require_config || return 1
+            shell
+            ;;
+        status)
+            require_config || return 1
+            status
+            ;;
         *)
             usage >&2
             return 1

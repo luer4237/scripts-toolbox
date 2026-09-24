@@ -1,0 +1,16 @@
+# Docker container configuration for docker-ctl.sh
+
+# 容器名称
+CONTAINER_NAME="填写容器名称"
+# Docker 镜像
+IMAGE="填写 Docker 镜像"
+# 宿主机端口
+HOST_PORT="填写宿主机端口"
+# 容器端口
+CONTAINER_PORT="填写容器端口"
+
+# 可选，传给 docker run 的额外参数；多个参数使用空格分隔。
+# 示例：
+# EXTRA_ARGS="--cap-add LINUX_IMMUTABLE"
+# EXTRA_ARGS="--restart unless-stopped"
+EXTRA_ARGS=""

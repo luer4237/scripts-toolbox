@@ -5,6 +5,7 @@
 .env
 .env.*
 !.env.example
+scripts/cross-platform/manual/docker-ctl/docker-ctl.conf
 credentials*
 secrets*
 
