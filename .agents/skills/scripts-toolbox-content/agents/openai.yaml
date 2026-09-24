@@ -1,0 +1,4 @@
+interface:
+  display_name: "Scripts Toolbox 内容规范"
+  short_description: "按项目约定新增或修改脚本、目录和 README 内容"
+  default_prompt: "请按 Scripts Toolbox 内容规范新增或修改项目内容。"
