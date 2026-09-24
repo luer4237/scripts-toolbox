@@ -1,0 +1,22 @@
+# macOS
+.DS_Store
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+credentials*
+secrets*
+
+# Private keys and certificates
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+
+# Editor and local tooling
+.idea/
+.vscode/
+.claude/
+.codex/
