@@ -10,6 +10,7 @@
 #   ./docker-ctl.sh logs     查看日志
 #   ./docker-ctl.sh shell    进入容器
 #   ./docker-ctl.sh status   查看状态
+#   ./docker-ctl.sh -h       查看帮助
 
 set -euo pipefail
 
@@ -144,11 +145,24 @@ status() {
 }
 
 usage() {
-    printf '用法: %s {start|stop|rm|logs|shell|status}\n' "$0"
+    cat <<EOF
+用法: $0 [命令]
+
+命令：
+  start     启动或创建容器（默认）
+  stop      停止容器但保留容器
+  rm        强制删除容器
+  logs      查看容器日志
+  shell     进入容器
+  status    查看容器状态
+  -h, --help
+            查看帮助
+EOF
 }
 
 main() {
     case "${1:-start}" in
+        -h|--help) usage ;;
         start)  start ;;
         stop)   stop ;;
         rm)     rm_container ;;

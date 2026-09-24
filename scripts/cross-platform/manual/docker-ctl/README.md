@@ -16,6 +16,7 @@
 ./docker-ctl.sh shell    # 进入容器
 ./docker-ctl.sh status   # 查看状态
 ./docker-ctl.sh rm       # 强制删除容器
+./docker-ctl.sh -h       # 查看帮助
 ```
 
 首次使用前建议复制脚本，再修改以下配置：
